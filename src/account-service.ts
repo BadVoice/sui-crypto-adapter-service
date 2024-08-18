@@ -1,12 +1,12 @@
-import { AddressAdapter } from './address-adapter';
 import { NETWORK } from './constants';
+import { NodeAdapter } from './node-adapter';
 import { BlockBookParams, NodesOptions } from './types';
 
 export class AccountService {
   readonly network = NETWORK;
-  node: AddressAdapter;
-  nodes: AddressAdapter[];
-  blockBooks: AddressAdapter[];
+  node: NodeAdapter;
+  nodes: NodeAdapter[];
+  blockBooks: NodeAdapter[];
 
   initNodes(
     nodeParams: NodesOptions,
@@ -15,7 +15,7 @@ export class AccountService {
 
       this.validationParamsUrl(param, 'Node');
       this.validationParamsConfirmationLimit(param, 'Node');
-      return new AddressAdapter(param, name);
+      return new NodeAdapter(param, name);
     });
   }
 

@@ -15,7 +15,7 @@ import {
   SuiBalance,
 } from './types';
 
-export class AddressAdapter {
+export class NodeAdapter {
   readonly type = AdapterType.Node;
   readonly network = NETWORK;
   readonly tickers = [NETWORK];
