@@ -1,4 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
+import Big from 'big.js';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
@@ -7,6 +8,10 @@ import {
   RPC_METHODS,
 } from './constants';
 import { mistToSui } from './functions';
+import { CoinType } from './types';
+import { CoinDataResult } from './types';
+import { CoinData } from './types';
+import { CoinsByAddressResult } from './types';
 import {
   AdapterType,
   BalanceByAddressResult,
@@ -61,6 +66,55 @@ export class NodeAdapter {
     return {
       balance,
     };
+  }
+
+  async getCoinsByAddress(coinType: CoinType, address: string): Promise<CoinsByAddressResult> {
+    let cursor: string | null = null;
+    const limit = 100;
+    let allCoins: CoinDataResult[] = [];
+
+    do {
+      try {
+        const {
+          data: coinsData,
+          nextCursor,
+        }: { data: CoinData[], nextCursor: string | null } = await this.rpcRequest({
+          method: RPC_METHODS.GET_COINS,
+          params: [address, coinType, cursor, limit],
+        });
+
+        if (!coinsData) {
+          throw new Error(`Invalid response format for GET_COINS: ${coinsData}`);
+        }
+
+        allCoins = allCoins.concat(
+          coinsData.filter(this.validateCoin).map((coin: CoinData) => ({
+            digest: coin.digest,
+            balance: coin.balance,
+            objectId: coin.coinObjectId,
+          })),
+        );
+
+        cursor = nextCursor;
+
+      } catch (error) {
+        throw new Error(`Fetch error ${address} "getCoinsByAddress". Message: ${(error as Error)?.message}.`);
+      }
+    } while (cursor);
+
+
+    const totalBalance = allCoins.reduce((sum: Big, coin: CoinDataResult) => sum.plus(coin.balance), Big(0)).toFixed();
+
+    return {
+      data: allCoins,
+      totalBalance: mistToSui(totalBalance),
+    };
+  }
+
+  private validateCoin(coin: CoinData): boolean {
+    return coin.coinType === CoinType.SUI &&
+      typeof coin.balance === 'string' &&
+      Number(coin.balance) > 0;
   }
 
   async rpcRequest<T>(options: RpcRequestOptions<T>): Promise<any> {
