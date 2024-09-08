@@ -95,7 +95,7 @@ export class NodeAdapter {
         }
 
         allCoins = allCoins.concat(
-          coinsData.filter((coin) => this.validateCoin(coin, coinType)).map((coin: CoinData) => ({
+          coinsData.filter((coin: CoinData) => this.validateCoin(coin, coinType)).map((coin: CoinData) => ({
             digest: coin.digest,
             balance: coin.balance,
             objectId: coin.coinObjectId,
