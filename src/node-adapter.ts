@@ -72,10 +72,9 @@ export class NodeAdapter {
     let cursor: string | null = null;
     const limit = 100;
     let allCoins: CoinDataResult[] = [];
-
+    const seenCursors: Set<string> = new Set<string | null>();
     do {
       try {
-        // TODO: if cursor is null in params request, will be infinity loop
         const {
           data: coinsData,
           nextCursor,
@@ -84,12 +83,19 @@ export class NodeAdapter {
           params: [address, coinType, cursor, limit],
         });
 
+        // TODO: if cursor is null in params request and if address have been coins, will be infinity loop the server starts returning the same cursor.
+        if (seenCursors.has(nextCursor)) {
+          throw new Error('A repeated cursor is detected. Exit the cycle.');
+        }
+
+        seenCursors.add(nextCursor);
+
         if (!coinsData) {
-          throw new Error(`Invalid response format for GET_COINS: ${coinsData}`);
+          throw new Error(`Invalid response format for GET_COINS: ${JSON.stringify(coinsData)}`);
         }
 
         allCoins = allCoins.concat(
-          coinsData.filter(this.validateCoin).map((coin: CoinData) => ({
+          coinsData.filter((coin) => this.validateCoin(coin, coinType)).map((coin: CoinData) => ({
             digest: coin.digest,
             balance: coin.balance,
             objectId: coin.coinObjectId,
@@ -103,8 +109,7 @@ export class NodeAdapter {
       }
     } while (cursor);
 
-
-    const totalBalance = allCoins.reduce((sum: Big, coin: CoinDataResult) => sum.plus(coin.balance), Big(0)).toFixed();
+    const totalBalance: string = allCoins.reduce((sum: Big, coin: CoinDataResult) => sum.plus(coin.balance), Big(0)).toFixed();
 
     return {
       data: allCoins,
@@ -112,8 +117,8 @@ export class NodeAdapter {
     };
   }
 
-  private validateCoin(coin: CoinData): boolean {
-    return coin.coinType === CoinType.SUI &&
+  private validateCoin(coin: CoinData, coinType: CoinType): boolean {
+    return coin.coinType === coinType &&
       typeof coin.balance === 'string' &&
       Number(coin.balance) > 0;
   }
