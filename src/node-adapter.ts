@@ -8,11 +8,11 @@ import {
   RPC_METHODS,
 } from './constants';
 import { mistToSui } from './functions';
-import { CoinType } from './types';
-import { CoinDataResult } from './types';
-import { CoinData } from './types';
-import { CoinsByAddressResult } from './types';
 import {
+  CoinType,
+  CoinDataResult,
+  CoinData,
+  CoinsByAddressResult,
   AdapterType,
   BalanceByAddressResult,
   NodesOptions,
@@ -75,10 +75,11 @@ export class NodeAdapter {
 
     do {
       try {
+        // TODO: if cursor is null in params request, will be infinity loop
         const {
           data: coinsData,
           nextCursor,
-        }: { data: CoinData[], nextCursor: string | null } = await this.rpcRequest({
+        }: { data: CoinData[]; nextCursor: string | null } = await this.rpcRequest({
           method: RPC_METHODS.GET_COINS,
           params: [address, coinType, cursor, limit],
         });

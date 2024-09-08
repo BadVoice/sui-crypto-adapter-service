@@ -44,7 +44,7 @@ export  enum CoinType {
 }
 
 export  type CoinsByAddressResult = {
-  data: CoinDataResult[],
+  data: CoinDataResult[];
   totalBalance: string;
 }
 
