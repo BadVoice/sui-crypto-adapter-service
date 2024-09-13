@@ -10,16 +10,6 @@
   "author": "German <german.suvorov134@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "test": "jest",
-    "prebuild": "rimraf dist",
-    "version": "yarn build && git add -A dist",
-    "postversion": "git push && git push --tags",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "start": "ts-node src/test.ts",
-    "lint:fix": "eslint . --ext .ts --fix",
-    "format": "prettier --write ."
-  },
-  "scripts": {
     "prebuild": "rimraf dist",
     "test": "jest",
     "test:watch": "jest --watch",

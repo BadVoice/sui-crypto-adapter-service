@@ -8,5 +8,12 @@ export function mistToSui(mistAmount: bigint | string): string {
   } else if (mist.eq(0)) {
     return '0';
   }
-  return mist.div(SUI_PER_MIST).toFixed(9);
+
+  return formatSuiBalance(mist.div(SUI_PER_MIST));
+}
+
+function formatSuiBalance(suiAmount: Big): string {
+  const parts = suiAmount.toFixed(9).split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return parts.join('.');
 }

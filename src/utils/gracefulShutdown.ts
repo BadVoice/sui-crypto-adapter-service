@@ -1,4 +1,4 @@
-async function gracefulShutdown(signal: string) {
+export async function gracefulShutdown(signal: string) {
   console.log(`Received signal to terminate: ${signal}`);
 
   // --- Выполни здесь все необходимые действия перед завершением работы:
@@ -13,5 +13,5 @@ async function gracefulShutdown(signal: string) {
   // ---
 
   console.log('Gracefully shutting down...');
-  process.exit(0); // Завершаем процесс с кодом 0 (успех)
+  process.exit(0);
 }
